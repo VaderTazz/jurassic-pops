@@ -440,8 +440,13 @@ async function loadCheckedSetFromGitHub() {
     // Use the API (not raw.githubusercontent.com) since the CDN in front of raw
     // content can lag behind recent writes by several minutes, which made
     // freshly-checked items appear to revert on refresh.
+    // Authenticated (not anonymous) - unauthenticated api.github.com reads are capped
+    // at 60/hour per IP, which is easy to exhaust on mobile (shared carrier IPs) and
+    // causes checked items to silently appear to revert on refresh once hit. The token
+    // is already public in this page's JS for writes, so authenticating reads too adds
+    // no new exposure and bumps the limit to 5,000/hour.
     const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_STATE_PATH}`, {
-      headers: { 'Accept': 'application/vnd.github+json' }
+      headers: { 'Authorization': `Bearer ${GH_WRITE_TOKEN}`, 'Accept': 'application/vnd.github+json' }
     });
     if (!res.ok) return new Set();
     const meta = await res.json();
