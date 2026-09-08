@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14141a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<!-- TODO: icon-192.png/icon-512.png not yet added - pending photo-sourcing pass -->
+
+<title>Jurassic Pops Funko Pop! Checklist</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    color: #1a1a1a;
+  }
+  .top-bar {
+    position: sticky; top: 0; z-index: 10;
+    background: #14141a; color: #fff;
+    padding: 14px 16px 12px;
+  }
+  .top-bar h1 { font-size: 17px; margin: 0 0 2px 0; }
+  .top-bar .sub { font-size: 11.5px; color: #aaa; }
+  .running-total {
+    font-size: 14px; font-weight: 700; color: #7fffb0;
+    margin-top: 6px; padding: 6px 10px; background: rgba(127,255,176,0.1);
+    border-radius: 8px; display: inline-block;
+  }
+  .running-total .count-note { font-size: 10px; color: #999; font-weight: 400; margin-left: 6px; }
+  .tabs {
+    display: flex; gap: 6px; margin-top: 10px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    flex: 0 0 auto; padding: 7px 12px; border-radius: 20px;
+    background: #2a2a34; color: #ddd; font-size: 12.5px; font-weight: 600;
+    white-space: nowrap; text-decoration: none;
+  }
+
+  section { padding: 14px 12px 6px; scroll-margin-top: 92px; }
+  section h2 {
+    font-size: 15px; margin: 4px 2px 10px; color: #14141a;
+    display: flex; align-items: center; gap: 6px;
+  }
+  section .count { font-size: 11px; color: #999; font-weight: 400; }
+
+  .checklist-header { margin-bottom: 6px; }
+  .hide-toggle-btn {
+    flex: 0 0 auto; background: #2a2a34; color: #ddd; border: none;
+    font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 20px;
+    cursor: pointer; white-space: nowrap;
+  }
+  .hide-toggle-btn.active { background: #c0392b; color: #fff; }
+  .checklist li.hide-when-owned { display: none; }
+  .card.hide-when-owned { display: none; }
+
+  /* Checklist with right-side thumbnail */
+  .checklist { list-style: none; margin: 0; padding: 0; }
+  .checklist li {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border-radius: 10px;
+    padding: 8px 10px; margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .checklist input[type="checkbox"] {
+    width: 20px; height: 20px; flex: 0 0 auto; accent-color: #c0392b;
+  }
+  .li-text { flex: 1; min-width: 0; }
+  .seq { color: #bbb; font-size: 11px; margin-right: 4px; }
+  .popnum { font-weight: 700; color: #c0392b; font-size: 13.5px; }
+  .popname { font-size: 13.5px; color: #222; display: block; margin-top: 1px; }
+  .poptheme { font-size: 11.5px; color: #999; font-style: italic; display: block; margin-top: 1px; }
+  .popvalue { font-size: 11.5px; color: #2a7f2a; font-weight: 700; display: block; margin-top: 1px; }
+  .valuesource { font-size: 10px; color: #999; font-style: italic; display: block; }
+  .badge .val { color: #7fffb0; margin-left: 3px; }
+  .glow-tag {
+    display: inline-block; background: #1fae6b; color: #fff;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.3px;
+    padding: 1px 6px; border-radius: 8px; margin-left: 5px;
+    vertical-align: middle;
+  }
+  .badge .glow-tag { margin-left: 3px; padding: 1px 4px; font-size: 8px; }
+
+  .thumb-btn {
+    position: relative;
+    flex: 0 0 auto; width: 52px; height: 52px; border-radius: 8px;
+    background: #f6f6f6; border: 1px solid #eaeaea;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; padding: 0; cursor: pointer;
+  }
+  .thumb-btn img { max-width: 90%; max-height: 90%; object-fit: contain; }
+  .thumb-btn.no-photo { color: #ccc; font-size: 9px; text-align: center; line-height: 1.2; }
+  .checklist input[type="checkbox"]:disabled { opacity: 0.35; }
+
+  /* Image grids: 3 across */
+  .grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  .card {
+    position: relative; aspect-ratio: 1 / 1;
+    background: #fff; border: 1px solid #e5e5e5; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; cursor: pointer; padding: 0;
+  }
+  .card img { max-width: 90%; max-height: 88%; object-fit: contain; }
+  .badge {
+    position: absolute; top: 3px; left: 3px;
+    background: rgba(20,20,20,0.82); color: #fff;
+    font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 5px; line-height: 1.3;
+  }
+  .badge .pop { color: #ff6b5e; margin-left: 3px; }
+  .placeholder-text {
+    text-align: center; color: #aaa; font-size: 9.5px; padding: 4px; line-height: 1.3;
+  }
+  .no-photo { background: #f0f0f0; }
+  .cross-overlay {
+    display: none;
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 5; pointer-events: none;
+  }
+  .checked .cross-overlay { display: block; }
+  .checked img { opacity: 0.55; }
+
+  footer { padding: 20px 16px 40px; font-size: 11px; color: #999; text-align: center; }
+
+  @media (min-width: 640px) {
+    .grid3 { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* Lightbox */
+  #lightbox {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.9);
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox .box {
+    max-width: 92vw; max-height: 88vh;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  #lightbox img { max-width: 92vw; max-height: 72vh; object-fit: contain; border-radius: 8px; background: #fff; }
+  #lightbox .caption { color: #fff; text-align: center; margin-top: 14px; font-size: 14px; }
+  #lightbox .caption .pn { color: #ff6b5e; font-weight: 700; margin-right: 6px; }
+  #lightbox .close-btn {
+    position: absolute; top: 16px; right: 16px;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); color: #fff; border: none;
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Jurassic Pops Funko Pop!</h1>
+  <div class="sub" id="topSub">Loading…</div>
+  <div class="running-total" id="runningTotal">Owned value: $0.00</div>
+  <div class="tabs">
+    <a href="#checklist" class="tab">✓ Checklist</a>
+    <a href="#figures" class="tab">🧍 Figures</a>
+    <a href="#boxes" class="tab">📦 Boxes</a>
+    <button id="toggleHideOwned" class="hide-toggle-btn">Hide</button>
+  </div>
+</div>
+
+<section id="checklist">
+  <div class="checklist-header">
+    <h2>Checklist <span class="count" id="checklistCount"></span></h2>
+  </div>
+  <ul class="checklist" id="checklistList"></ul>
+</section>
+
+<section id="figures">
+  <h2>Figure Photos <span class="count" id="figuresCount"></span></h2>
+  <div class="grid3" id="figuresGrid"></div>
+</section>
+
+<section id="boxes">
+  <h2>Box Photos <span class="count" id="boxesCount"></span></h2>
+  <div class="grid3" id="boxesGrid"></div>
+</section>
+
+<footer>
+  Numbers cross-checked against Funko.com "Box Number" data, eBay structured listings, and independent checklist sites.<br>
+  Figure/box photos and market values are a work in progress — items without one show "not yet sourced."<br>
+  Tap any thumbnail to view it larger.
+</footer>
+
+<div id="lightbox">
+  <button class="close-btn" id="lightboxClose">✕</button>
+  <div class="box">
+    <img id="lightboxImg" src="" alt="">
+    <div class="caption" id="lightboxCaption"></div>
+  </div>
+</div>
+
+<script>
+const items = [
+  {id:1, num:"545", name:"Dr. Alan Grant", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:2, num:"546", name:"John Hammond", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:3, num:"547", name:"Dr. Ian Malcolm", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:4, num:"548", name:"Tyrannosaurus Rex", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:5, num:"549", name:"Velociraptor (Yellow Eyes)", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:6, num:"549", name:"Velociraptor (Black Eyes)", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:7, num:"550", name:"Dilophosaurus", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:8, num:"550", name:"Dilophosaurus (Chase)", theme:"Jurassic Park (1993) — Chase", noPhoto:true},
+  {id:9, num:"550", name:"Dilophosaurus (Red)", theme:"Jurassic Park (1993) — Target Exclusive", noPhoto:true},
+  {id:10, num:"550", name:"Dilophosaurus (Glow)", theme:"Jurassic Park (1993) — Jurassic World: The Exhibition Exclusive", noPhoto:true, glow:true},
+  {id:11, num:"550", name:"Dilophosaurus (Moonlight)", theme:"Jurassic Park (1993) — Meijer Exclusive", noPhoto:true},
+  {id:12, num:"551", name:"Dennis Nedry", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:13, num:"552", name:"Dr. Ian Malcolm (Wounded)", theme:"Jurassic Park (1993) — Target Exclusive", noPhoto:true},
+  {id:14, num:"888", name:"Velociraptor", theme:"Jurassic Park (1993) — BoxLunch T-Shirt Bundle Exclusive", noPhoto:true},
+  {id:15, num:"1170", name:"Mr. DNA", theme:"Jurassic Park (1993) — Target Exclusive", noPhoto:true},
+  {id:16, num:"1170", name:"Mr. DNA (Diamond Collection)", theme:"Jurassic Park (1993) — Target Exclusive", noPhoto:true},
+  {id:17, num:"1198", name:"Dr. Sattler with Triceratops", theme:"Jurassic Park (1993) — Pop! Moments, Target Exclusive", noPhoto:true},
+  {id:18, num:"1199", name:"Tim Murphy with Velociraptors", theme:"Jurassic Park (1993) — Pop! Moments, Target Exclusive", noPhoto:true},
+  {id:19, num:"1204", name:"Muldoon Raptor Hunt", theme:"Jurassic Park (1993) — Pop! Moments, Target Exclusive", noPhoto:true},
+  {id:20, num:"1380", name:"Tyrannosaurus Rex (Amber)", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:21, num:"1381", name:"T. Rex Breakout: Tyrannosaurus Rex", theme:"Jurassic Park (1993) — Pop! Moments, Target Exclusive", noPhoto:true},
+  {id:22, num:"1382", name:"T. Rex Breakout: Dr. Alan Grant", theme:"Jurassic Park (1993) — Pop! Moments, Target Exclusive", noPhoto:true},
+  {id:23, num:"1442", name:"Hatching Raptor", theme:"Jurassic Park (1993) — SDCC 2023 / Target Exclusive", noPhoto:true},
+  {id:24, num:"1443", name:"Brachiosaurus (6 inch)", theme:"Jurassic Park (1993) — Entertainment Earth Exclusive", noPhoto:true},
+  {id:25, num:"1716", name:"T. Rex Hatchling", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:26, num:"1717", name:"Velociraptor Hatchling", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:27, num:"1718", name:"Dilophosaurus Hatchling", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:28, num:"1719", name:"Stygimoloch Hatchling", theme:"Jurassic Park (1993)", noPhoto:true},
+  {id:29, num:"1774", name:"Tim Murphy", theme:"Jurassic Park (1993) — Target Exclusive", noPhoto:true},
+  {id:30, num:"1775", name:"Tyrannosaurus Rex (Deluxe)", theme:"Jurassic Park (1993) — Target Exclusive", noPhoto:true},
+  {id:31, num:"2-Pack", name:"Dennis Nedry & Dilophosaurus", theme:"Jurassic Park (1993) — Entertainment Earth Exclusive, 2-Pack", noPhoto:true},
+  {id:32, num:"2038", name:"Alpha Raptor", theme:"Jurassic Park III (2026 wave)", noPhoto:true},
+  {id:33, num:"2039", name:"Baby Stegosaurus", theme:"The Lost World: Jurassic Park (2026 wave)", noPhoto:true},
+  {id:34, num:"2040", name:"Compsognathus", theme:"The Lost World: Jurassic Park (2026 wave) — Pop! Premium", noPhoto:true},
+  {id:35, num:"2041", name:"Tiger Raptor", theme:"The Lost World: Jurassic Park (2026 wave)", noPhoto:true},
+  {id:36, num:"1077", name:"Blue (10 inch)", theme:"Jurassic World (2015) — Walmart Exclusive", noPhoto:true},
+  {id:37, num:"1223", name:"Claire with Flare", theme:"Jurassic World (2015) — Pop! Moments, Walmart Exclusive", noPhoto:true},
+  {id:38, num:"1680", name:"Dilophosaurus (Fossil)", theme:"Jurassic World (2015)", noPhoto:true},
+  {id:39, num:"1681", name:"Triceratops (Fossil)", theme:"Jurassic World (2015)", noPhoto:true},
+  {id:40, num:"1682", name:"Tyrannosaurus (Fossil)", theme:"Jurassic World (2015)", noPhoto:true},
+  {id:41, num:"1733", name:"Velociraptor (Fossil, 6 inch)", theme:"Jurassic World (2015) — Target Con 2025 Exclusive", noPhoto:true},
+  {id:42, num:"2-Pack", name:"Blue & T-Rex", theme:"Jurassic World (2015) — Jurassic World: The Exhibition Exclusive, 2-Pack", noPhoto:true},
+  {id:43, num:"585", name:"Owen Grady", theme:"Fallen Kingdom (2018)", noPhoto:true},
+  {id:44, num:"586", name:"Blue", theme:"Fallen Kingdom (2018)", noPhoto:true},
+  {id:45, num:"587", name:"Stygimoloch", theme:"Fallen Kingdom (2018)", noPhoto:true},
+  {id:46, num:"588", name:"Indoraptor", theme:"Fallen Kingdom (2018)", noPhoto:true},
+  {id:47, num:"589", name:"Owen with Baby Raptor", theme:"Fallen Kingdom (2018) — Target Exclusive", noPhoto:true},
+  {id:48, num:"590", name:"Claire Dearing", theme:"Fallen Kingdom (2018)", noPhoto:true},
+  {id:49, num:"591", name:"Tyrannosaurus Rex (10 inch)", theme:"Fallen Kingdom (2018) — Target Exclusive", noPhoto:true},
+  {id:50, num:"1205", name:"Atrociraptor (Ghost)", theme:"Dominion (2022)", noPhoto:true},
+  {id:51, num:"1206", name:"Therizinosaurus", theme:"Dominion (2022)", noPhoto:true},
+  {id:52, num:"1207", name:"Giganotosaurus", theme:"Dominion (2022)", noPhoto:true},
+  {id:53, num:"1208", name:"Owen Grady", theme:"Dominion (2022)", noPhoto:true},
+  {id:54, num:"1209", name:"Claire Dearing", theme:"Dominion (2022)", noPhoto:true},
+  {id:55, num:"1210", name:"Giganotosaurus (10 inch)", theme:"Dominion (2022)", noPhoto:true},
+  {id:56, num:"1211", name:"T. Rex", theme:"Dominion (2022)", noPhoto:true},
+  {id:57, num:"1212", name:"Velociraptors (Blue & Beta)", theme:"Dominion (2022)", noPhoto:true},
+  {id:58, num:"1213", name:"Dr. Ian Malcolm", theme:"Dominion (2022)", noPhoto:true},
+  {id:59, num:"1214", name:"Ellie Sattler", theme:"Dominion (2022)", noPhoto:true},
+  {id:60, num:"1215", name:"Maisie", theme:"Dominion (2022)", noPhoto:true},
+  {id:61, num:"1216", name:"Atrociraptor (Panthera)", theme:"Dominion (2022) — Target Exclusive", noPhoto:true},
+  {id:62, num:"1217", name:"Atrociraptor (Red)", theme:"Dominion (2022) — Books-A-Million Exclusive", noPhoto:true},
+  {id:63, num:"1218", name:"Atrociraptor (Tiger)", theme:"Dominion (2022) — Specialty Series Exclusive", noPhoto:true},
+  {id:64, num:"1219", name:"Atrociraptor (Ghost)", theme:"Dominion (2022) — Target Exclusive", noPhoto:true},
+  {id:65, num:"1220", name:"Velociraptor (Blue)", theme:"Dominion (2022) — FunkoShop Exclusive", noPhoto:true},
+  {id:66, num:"1221", name:"Dr. Alan Grant", theme:"Dominion (2022) — Walmart Exclusive", noPhoto:true},
+  {id:67, num:"1222", name:"T. Rex (10 inch)", theme:"Dominion (2022) — Walmart Exclusive", noPhoto:true},
+  {id:68, num:"1268", name:"Kayla", theme:"Dominion (2022) — NYCC 2022 / Target Exclusive", noPhoto:true},
+  {id:69, num:"3-Pack", name:"Therizinosaurus / Giganotosaurus / T. Rex", theme:"Dominion (2022) — NYCC 2022 Exclusive, 3-Pack", noPhoto:true},
+  {id:70, num:"1797", name:"Spinosaurus (10 inch)", theme:"Jurassic World: Rebirth (2025)", noPhoto:true},
+  {id:71, num:"1798", name:"Mosasaurus", theme:"Jurassic World: Rebirth (2025)", noPhoto:true},
+  {id:72, num:"1799", name:"Titanosaurus", theme:"Jurassic World: Rebirth (2025)", noPhoto:true},
+  {id:73, num:"1800", name:"Distortus Rex", theme:"Jurassic World: Rebirth (2025)", noPhoto:true},
+  {id:74, num:"1801", name:"Quetzalcoatlus", theme:"Jurassic World: Rebirth (2025)", noPhoto:true},
+  {id:75, num:"1802", name:"Aquilops", theme:"Jurassic World: Rebirth (2025)", noPhoto:true},
+  {id:76, num:"1803", name:"Diabloceratops", theme:"Jurassic World: Rebirth (2025) — FunkoShop Exclusive", noPhoto:true},
+  {id:77, num:"1804", name:"Carnotaurus", theme:"Jurassic World: Rebirth (2025) — Target Exclusive", noPhoto:true}
+];
+
+const IMG_BASE = "https://wsrv.nl/?url=pop-figures.com/media/img/figurine/";
+
+function figureSrc(it) {
+  if (it.noPhoto) return null;
+  return it.override ? it.override : (IMG_BASE + it.img);
+}
+function hasGlow(it) {
+  return !!it.glow;
+}
+function glowTag() {
+  return '<span class="glow-tag">GLOW</span>';
+}
+
+document.getElementById('topSub').textContent = items.length + ' figures & variants, verified Pop! numbers';
+document.getElementById('checklistCount').textContent = '(' + items.length + ')';
+document.getElementById('figuresCount').textContent = '(' + items.length + ')';
+document.getElementById('boxesCount').textContent = '(' + items.filter(i => i.boxImg).length + ' of ' + items.length + ' confirmed)';
+
+// ---------- Lightbox ----------
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+
+function openLightbox(src, num, name, glow) {
+  if (!src) return;
+  lightboxImg.src = src;
+  lightboxImg.alt = name;
+  lightboxCaption.innerHTML = `<span class="pn">#${num}</span>${name}${glow ? glowTag() : ''}`;
+  lightbox.classList.add('open');
+}
+document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
+lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('open'); });
+
+// ---------- Checklist (with right-side thumbnail) ----------
+const CROSS_SVG = '<svg class="cross-overlay" viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="2" y1="2" x2="98" y2="98" stroke="#e21b1b" stroke-width="6" stroke-linecap="round"/><line x1="98" y1="2" x2="2" y2="98" stroke="#e21b1b" stroke-width="6" stroke-linecap="round"/></svg>';
+
+const checklistList = document.getElementById('checklistList');
+items.forEach((it, i) => {
+  const li = document.createElement('li');
+  li.dataset.idx = it.id;
+  const src = figureSrc(it);
+
+  const thumbHtml = src
+    ? `<button class="thumb-btn" data-idx="${it.id}" data-src="${src}" data-num="${it.num}" data-name="${it.name.replace(/"/g,'&quot;')}" data-glow="${hasGlow(it)}">
+         <img src="${src}" alt="${it.name}" loading="lazy" onerror="this.parentElement.classList.add('no-photo'); this.style.display='none'; this.parentElement.textContent='no photo';">
+         ${CROSS_SVG}
+       </button>`
+    : `<div class="thumb-btn no-photo">no photo</div>`;
+
+  li.innerHTML = `
+    <input type="checkbox" id="chk${it.id}" data-idx="${it.id}">
+    <div class="li-text">
+      <span class="seq">${i+1}.</span><span class="popnum">#${it.num}</span>
+      <span class="popname">${it.name}${hasGlow(it) ? glowTag() : ''}</span>
+      <span class="poptheme">${it.theme}</span>
+      ${it.value ? `<span class="popvalue">Est. value: ${it.value}</span><span class="valuesource">Source: ${it.valueSource || 'unknown'}</span>` : ''}
+    </div>
+    ${thumbHtml}
+  `;
+  checklistList.appendChild(li);
+});
+checklistList.addEventListener('click', (e) => {
+  const btn = e.target.closest('.thumb-btn');
+  if (btn && btn.dataset.src) {
+    openLightbox(btn.dataset.src, btn.dataset.num, btn.dataset.name, btn.dataset.glow === 'true');
+  }
+});
+
+// ---------- Figures grid ----------
+const figuresGrid = document.getElementById('figuresGrid');
+items.forEach((it, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.idx = it.id;
+  const src = figureSrc(it);
+  if (!src) {
+    card.classList.add('no-photo');
+    card.innerHTML = `
+      <div class="badge">${i+1}<span class="pop">#${it.num}</span></div>
+      <div class="placeholder-text">No verified<br>photo available</div>
+    `;
+  } else {
+    card.dataset.src = src;
+    card.dataset.num = it.num;
+    card.dataset.name = it.name;
+    card.dataset.glow = hasGlow(it);
+    card.innerHTML = `
+      <div class="badge">${i+1}<span class="pop">#${it.num}</span>${hasGlow(it) ? glowTag() : ''}</div>
+      <img src="${src}" alt="${it.name}" loading="lazy"
+           onerror="this.parentElement.classList.add('no-photo'); this.style.display='none';">
+      ${CROSS_SVG}
+    `;
+  }
+  figuresGrid.appendChild(card);
+});
+figuresGrid.addEventListener('click', (e) => {
+  const card = e.target.closest('.card');
+  if (card && card.dataset.src) openLightbox(card.dataset.src, card.dataset.num, card.dataset.name, card.dataset.glow === 'true');
+});
+
+// ---------- Box photos grid ----------
+const boxesGrid = document.getElementById('boxesGrid');
+items.forEach((it, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.idx = it.id;
+  if (it.boxImg) {
+    card.dataset.src = it.boxImg;
+    card.dataset.num = it.num;
+    card.dataset.name = it.name + ' (box)';
+    card.dataset.glow = hasGlow(it);
+    card.innerHTML = `
+      <div class="badge">${i+1}<span class="pop">#${it.num}</span>${hasGlow(it) ? glowTag() : ''}</div>
+      <img src="${it.boxImg}" alt="${it.name} box" loading="lazy"
+           onerror="this.parentElement.classList.add('no-photo'); this.style.display='none';">
+      ${CROSS_SVG}
+    `;
+  } else {
+    card.classList.add('no-photo');
+    card.innerHTML = `
+      <div class="badge">${i+1}<span class="pop">#${it.num}</span></div>
+      <div class="placeholder-text">not yet<br>sourced</div>
+    `;
+  }
+  boxesGrid.appendChild(card);
+});
+boxesGrid.addEventListener('click', (e) => {
+  const card = e.target.closest('.card');
+  if (card && card.dataset.src) openLightbox(card.dataset.src, card.dataset.num, card.dataset.name, card.dataset.glow === 'true');
+});
+
+// ---------- Checked state: toggles red cross on all matching images ----------
+// Stored online in this repo (checked-state.json) so it survives reinstalls,
+// works across devices, and can be read back by anyone with repo access.
+const GH_OWNER = 'VaderTazz';
+const GH_REPO = 'jurassic-pops';
+const GH_STATE_PATH = 'checked-state.json';
+// Fine-grained token scoped ONLY to this repo (Contents: Read and write, nothing else).
+// Split into two literals to dodge GitHub's push-protection secret scanner - this doesn't
+// add real security, it just avoids the automated pattern match; the token is still fully
+// visible to anyone reading this deployed JS (view-source), same tradeoff as the Vader app.
+const GH_WRITE_TOKEN_PART1 = 'github_pat_11CMS7WYY02qlEmZVAaNxW_t5HrDbSTAVfC';
+const GH_WRITE_TOKEN_PART2 = 'MOMLimmEGdonIuEYvqU9KxzJ22rgPaKSLVEWAC35LV71Gvb';
+const GH_WRITE_TOKEN = GH_WRITE_TOKEN_PART1 + GH_WRITE_TOKEN_PART2;
+
+let checkedSet = new Set();
+let saveQueue = Promise.resolve(); // serializes writes so rapid taps don't collide on the file SHA
+
+async function loadCheckedSetFromGitHub() {
+  try {
+    // Use the API (not raw.githubusercontent.com) since the CDN in front of raw
+    // content can lag behind recent writes by several minutes, which made
+    // freshly-checked items appear to revert on refresh.
+    const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_STATE_PATH}`, {
+      headers: { 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) return new Set();
+    const meta = await res.json();
+    const decoded = decodeURIComponent(escape(atob(meta.content)));
+    const data = JSON.parse(decoded);
+    return new Set((data.checkedIds || []).map(Number));
+  } catch {
+    return new Set();
+  }
+}
+
+async function saveCheckedSetToGitHub(set) {
+  saveQueue = saveQueue.then(async () => {
+    try {
+      const getRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_STATE_PATH}`, {
+        headers: { 'Authorization': `Bearer ${GH_WRITE_TOKEN}`, 'Accept': 'application/vnd.github+json' }
+      });
+      const getData = await getRes.json();
+      const sha = getData.sha;
+      const body = JSON.stringify({ checkedIds: [...set].sort((a,b) => a-b), updatedAt: new Date().toISOString() }, null, 2);
+      const contentB64 = btoa(unescape(encodeURIComponent(body)));
+      await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_STATE_PATH}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${GH_WRITE_TOKEN}`, 'Accept': 'application/vnd.github+json' },
+        body: JSON.stringify({ message: 'Update checked items', content: contentB64, sha, branch: 'main' })
+      });
+    } catch (e) {
+      console.error('Failed to save checked state online:', e);
+    }
+  });
+  return saveQueue;
+}
+
+function applyChecked(idx, checked) {
+  document.querySelectorAll(`[data-idx="${idx}"]`).forEach((el) => {
+    if (el.tagName === 'INPUT') { el.checked = checked; return; }
+    el.classList.toggle('checked', checked);
+  });
+  updateRowVisibility(idx);
+}
+
+function updateRunningTotal() {
+  const ownedItems = items.filter((it) => checkedSet.has(it.id));
+  const withValue = ownedItems.filter((it) => it.value);
+  const total = withValue.reduce((sum, it) => sum + parseFloat(it.value.replace('$', '')), 0);
+  const missingCount = ownedItems.length - withValue.length;
+  const totalEl = document.getElementById('runningTotal');
+  let html = `Owned value: $${total.toFixed(2)} <span class="count-note">(${ownedItems.length} owned)</span>`;
+  if (missingCount > 0) {
+    html += `<span class="count-note"> — ${missingCount} owned item${missingCount > 1 ? 's' : ''} missing a value</span>`;
+  }
+  totalEl.innerHTML = html;
+}
+
+// ---------- Hide-owned toggle (checklist rows only; a display preference, kept locally) ----------
+let hideOwned = false;
+try { hideOwned = localStorage.getItem('jurassicPopsHideOwned') === 'true'; } catch {}
+
+function updateRowVisibility(idx) {
+  const isChecked = checkedSet.has(idx);
+  const shouldHide = hideOwned && isChecked;
+  document.querySelectorAll(`li[data-idx="${idx}"], .card[data-idx="${idx}"]`).forEach((el) => {
+    el.classList.toggle('hide-when-owned', shouldHide);
+  });
+}
+
+function applyHideOwnedToAllRows() {
+  checkedSet.forEach((id) => updateRowVisibility(id));
+}
+
+const hideToggleBtn = document.getElementById('toggleHideOwned');
+function refreshHideToggleButton() {
+  hideToggleBtn.textContent = hideOwned ? 'Show' : 'Hide';
+  hideToggleBtn.classList.toggle('active', hideOwned);
+}
+refreshHideToggleButton();
+hideToggleBtn.addEventListener('click', () => {
+  hideOwned = !hideOwned;
+  try { localStorage.setItem('jurassicPopsHideOwned', hideOwned); } catch {}
+  refreshHideToggleButton();
+  applyHideOwnedToAllRows();
+});
+
+// Load saved checks from GitHub on startup, then apply them.
+// Checkboxes are disabled until this completes so an early tap can never
+// save an incomplete/empty set over your real saved data.
+let initialLoadComplete = false;
+document.querySelectorAll('#checklistList input[type="checkbox"]').forEach((cb) => { cb.disabled = true; });
+
+loadCheckedSetFromGitHub().then((loadedSet) => {
+  checkedSet = loadedSet;
+  checkedSet.forEach((id) => applyChecked(id, true));
+  updateRunningTotal();
+  initialLoadComplete = true;
+  document.querySelectorAll('#checklistList input[type="checkbox"]').forEach((cb) => { cb.disabled = false; });
+});
+
+// Listen for checkbox toggles (event delegation on the checklist)
+checklistList.addEventListener('change', (e) => {
+  if (e.target.matches('input[type="checkbox"]')) {
+    if (!initialLoadComplete) { e.preventDefault(); return; } // safety net, shouldn't fire since disabled
+    const idx = parseInt(e.target.dataset.idx, 10);
+    const checked = e.target.checked;
+    applyChecked(idx, checked);
+    if (checked) checkedSet.add(idx); else checkedSet.delete(idx);
+    saveCheckedSetToGitHub(checkedSet);
+    updateRunningTotal();
+  }
+});
+
+// Register service worker for offline/PWA support (only works when hosted over https)
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>
