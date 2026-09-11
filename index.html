@@ -208,6 +208,7 @@
 
 <script>
 const items = [
+  {id:88, num:"03", name:"Tyrannosaurus Rex & Velociraptor", theme:"Jurassic Park (1993) — Pop! Movie Poster with Case", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw38558eea/images/funko/61503-1.png", value:"$24.00", valueSource:"Funko.com (eBay Trending Value)"},
   {id:86, num:"30", name:"John Hammond (with Gates)", theme:"Jurassic Park (1993) — Pop! Town, Target Exclusive", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw3230bfa4/images/funko/63201-1.png", boxImg:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw5a552fcd/images/funko/63201-2.png", value:"$12.00", valueSource:"Funko.com (eBay Trending Value)"},
   {id:87, num:"39", name:"Ellie Sattler (with Jeep)", theme:"Jurassic Park (1993) — Pop! Rides", img:"https://pop-figures.com/media/img/figurine/39-funko-pop-figure-jurassic-park-ellie-sattler-avec-jeep.jpg", boxImg:"https://pop-figures.com/media/img/figurine/39-funko-pop-figure-jurassic-park-ellie-sattler-avec-jeep-box.jpg", value:"$21.00", valueSource:"pop-figures.com"},
   {id:1, num:"545", name:"Dr. Alan Grant", theme:"Jurassic Park (1993)", img:"https://funkypriceguide.com/media/collectibles/collectible-545-dr-alan-grant_002_large.jpg", value:"$30.00", valueSource:"funkypriceguide.com (eBay sold data)", boxImg:"https://pops.today/images/POP_MOVIES/Movies+545+Box_500x500.webp"},
@@ -294,7 +295,9 @@ const items = [
   {id:84, num:"Bitty Ride", name:"Bitty Pop! Ride: Dr. Alan Grant & Jurassic SUV", theme:"Jurassic Park (1993) — Bitty Pop! Rides", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dwe8bd3e02/images/funko/upload/1/90113a_BittyRide_JurassicPark_JPVehicle_GLAM-WEB.png", boxImg:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dwbee13d5d/images/funko/upload/1/90113b_BittyPop_JurassicPark_DrGrant_BOXGLAM-WEB.png", value:"$5.99", valueSource:"Funko.com MSRP"},
   {id:80, num:"Bitty S1", name:"Bitty Pop! 4-Pack Series 1 (Ellie Sattler, Ian Malcolm, Triceratops, Brachiosaurus)", theme:"Jurassic Park (1993) — Bitty Pop!, 1-in-6 chance of Hatchling Raptor chase", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw41f0ca63/images/funko/upload/1/92953_UniversalJurassicPark_DrSattler4pk_BOX-W-FIGURES-GLAM-WEB.png", value:"$14.99", valueSource:"Funko.com MSRP"},
   {id:81, num:"Bitty S2", name:"Bitty Pop! 4-Pack Series 2 (John Hammond, Tyrannosaurus Fossil, Stygimoloch, Velociraptor)", theme:"Jurassic Park (1993) — Bitty Pop!, 1-in-6 chance of Hatchling Raptor chase", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw7251fe8b/images/funko/upload/1/92954_UniversalJurassicPark_Hammond4pk_BOX-W-FIGURES-GLAM-WEB.png", value:"$14.99", valueSource:"Funko.com MSRP"},
-  {id:82, num:"Bitty S3", name:"Bitty Pop! 4-Pack Series 3 (Mr. DNA, Dilophosaurus Fossil, Dennis Nedry, Dilophosaurus)", theme:"Jurassic Park (1993) — Bitty Pop!, 1-in-6 chance of Hatchling Raptor chase", img:"https://www.popfigures.com/cdn/shop/files/PHOTO-2026-03-19-15-46-207.jpg?v=1774020132", value:"$13.81", valueSource:"popfigures.com retailer listing"}
+  {id:82, num:"Bitty S3", name:"Bitty Pop! 4-Pack Series 3 (Mr. DNA, Dilophosaurus Fossil, Dennis Nedry, Dilophosaurus)", theme:"Jurassic Park (1993) — Bitty Pop!, 1-in-6 chance of Hatchling Raptor chase", img:"https://www.popfigures.com/cdn/shop/files/PHOTO-2026-03-19-15-46-207.jpg?v=1774020132", value:"$13.81", valueSource:"popfigures.com retailer listing"},
+  {id:89, num:"Rewind", name:"Dr. Ian Malcolm", theme:"Jurassic Park (1993) — Funko Rewind, VHS-style packaging, 1-in-6 chance of \"Ian Malcolm with Flare\" chase", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dwceac2685/images/funko/upload/71001_JP_DrIanMalcolm_REWIND_GLAM-1.png", value:"$2.00", valueSource:"Funko.com (eBay Trending Value)"},
+  {id:90, num:"Soda", name:"Dr. Alan Grant", theme:"Jurassic Park (1993) — Vinyl SODA, Limited to 12,000, 1-in-6 chance of \"Dr. Alan Grant with Sunglasses\" chase", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw54eb276b/images/funko/upload/67179_Vinyl_SODA_Jurassic_Park-Alan_Grant_wCH_GLAM-WEB.png", boxImg:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw846dfd40/images/funko/upload/67179b_Vinyl_SODA_Jurassic_Park-Alan_Grant_wCH_CHASE_GLAM-WEB.png", value:"$12.00", valueSource:"Funko.com (eBay Trending Value)"}
 ];
 
 function figureSrc(it) {
@@ -308,7 +311,7 @@ function glowTag() {
   return '<span class="glow-tag">GLOW</span>';
 }
 
-document.getElementById('topSub').textContent = items.length + ' figures, variants, Bitty Pop & specialty items, verified Pop! numbers';
+document.getElementById('topSub').textContent = items.length + ' figures across all Pop! sub-lines, verified numbers';
 document.getElementById('checklistCount').textContent = '(' + items.length + ')';
 document.getElementById('figuresCount').textContent = '(' + items.length + ')';
 document.getElementById('boxesCount').textContent = '(' + items.filter(i => i.boxImg).length + ' of ' + items.length + ' confirmed)';
