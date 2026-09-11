@@ -208,6 +208,8 @@
 
 <script>
 const items = [
+  {id:86, num:"30", name:"John Hammond (with Gates)", theme:"Jurassic Park (1993) — Pop! Town, Target Exclusive", img:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw3230bfa4/images/funko/63201-1.png", boxImg:"https://funko.com/on/demandware.static/-/Sites-funko-master-catalog/default/dw5a552fcd/images/funko/63201-2.png", value:"$12.00", valueSource:"Funko.com (eBay Trending Value)"},
+  {id:87, num:"39", name:"Ellie Sattler (with Jeep)", theme:"Jurassic Park (1993) — Pop! Rides", img:"https://pop-figures.com/media/img/figurine/39-funko-pop-figure-jurassic-park-ellie-sattler-avec-jeep.jpg", boxImg:"https://pop-figures.com/media/img/figurine/39-funko-pop-figure-jurassic-park-ellie-sattler-avec-jeep-box.jpg", value:"$21.00", valueSource:"pop-figures.com"},
   {id:1, num:"545", name:"Dr. Alan Grant", theme:"Jurassic Park (1993)", img:"https://funkypriceguide.com/media/collectibles/collectible-545-dr-alan-grant_002_large.jpg", value:"$30.00", valueSource:"funkypriceguide.com (eBay sold data)", boxImg:"https://pops.today/images/POP_MOVIES/Movies+545+Box_500x500.webp"},
   {id:2, num:"546", name:"John Hammond", theme:"Jurassic Park (1993)", img:"https://funkypriceguide.com/media/collectibles/collectible-546-john-hammond_002_large.jpg", value:"$10.50", valueSource:"funkypriceguide.com (eBay sold data)", boxImg:"https://pops.today/images/POP_MOVIES/Movies+546+Box_500x500.webp"},
   {id:3, num:"547", name:"Dr. Ian Malcolm", theme:"Jurassic Park (1993)", img:"https://funkypriceguide.com/media/collectibles/collectible-547-dr-ian-malcolm_002_large.jpg", value:"$15.00", valueSource:"funkypriceguide.com (eBay sold data)", boxImg:"https://pops.today/images/POP_MOVIES/Movies+547+Box_500x500.webp"},
@@ -306,7 +308,7 @@ function glowTag() {
   return '<span class="glow-tag">GLOW</span>';
 }
 
-document.getElementById('topSub').textContent = items.length + ' figures, variants & Bitty Pop items, verified Pop! numbers';
+document.getElementById('topSub').textContent = items.length + ' figures, variants, Bitty Pop & specialty items, verified Pop! numbers';
 document.getElementById('checklistCount').textContent = '(' + items.length + ')';
 document.getElementById('figuresCount').textContent = '(' + items.length + ')';
 document.getElementById('boxesCount').textContent = '(' + items.filter(i => i.boxImg).length + ' of ' + items.length + ' confirmed)';
